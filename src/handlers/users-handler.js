@@ -9,7 +9,8 @@ class UsersHandler {
                 username: elem.username,
                 email: elem.email,
                 id: elem.id,
-                createdAt: elem.created_at
+                createdAt: elem.created_at,
+                roles: elem.roles
             }
         })
         res.status(STATUS_CODE.SUCCESS).json(result);
