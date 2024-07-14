@@ -1,0 +1,10 @@
+const STATUS_CODE = {
+    BAD_REQUEST: 400,
+    NOT_FOUND: 404,
+    SUCCESS: 200,
+    CREATED: 201,
+    UNAUTHORIZED: 401,
+    UNPROCESSABLE_ENTITY: 422
+}
+
+module.exports = STATUS_CODE;
