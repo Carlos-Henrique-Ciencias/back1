@@ -1,11 +1,12 @@
 const pool = require("../config/db");
 
 class PatientsRepository {
-    async add({ username, email, userId }) {
+    async add({ username, email, userId, birthDate, phone, maritalStatus, cpf, gender, rg }) {
         try {
-            const sql = `INSERT INTO patients (username, email, user_id) VALUES (?, ?, ?)`;
-            await pool.execute(sql, [username, email, userId]);
+            const sql = `INSERT INTO patients (username, email, user_id, birth_date, phone, marital_status, cpf, gender, rg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            await pool.execute(sql, [username, email, userId, birthDate, phone, maritalStatus, cpf, gender, rg]);
         } catch (error) {
+            console.log(error)
             return error;
         }
     }

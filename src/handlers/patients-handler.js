@@ -3,12 +3,13 @@ const jwt = require('jwt-decode');
 const usersRepository = require("../repository/users-repository");
 const patientsRepository = require("../repository/patients-repository");
 const emailUtils = require("../utils/email-utils");
-const ROLES = require("../enums/roles")
+const ROLES = require("../enums/roles");
+const { validCpf } = require("../utils/document-utils");
 
 class PatientsHandler {
     async add({ body, headers }, response) {
         const authHeader = headers.authorization;
-        const { username, email } = body;
+        const { username, email, birthDate, phone, maritalStatus, cpf, gender, rg } = body;
 
         if (!authHeader) {
             return response.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Usuário não autenticado." });
@@ -20,6 +21,11 @@ class PatientsHandler {
             return response.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Usuário não autenticado." });
         }
 
+        if (!birthDate || new Date(birthDate) > new Date()) return response.status(STATUS_CODE.BAD_REQUEST).json({ message: "A data de nascimento deve ser inferior ao dia corrente." });
+        if (!phone) return response.status(STATUS_CODE.BAD_REQUEST).json({ message: "O campo telefone é obrigatório." });
+
+        if (!validCpf(cpf)) return response.status(STATUS_CODE.BAD_REQUEST).json({ message: "O cpf informado é inválido." });
+
         if (!emailUtils.isValid(email)) return response.status(STATUS_CODE.BAD_REQUEST).json({ message: "Formato de e-mail inválido." });
 
         const patients = await patientsRepository.getByEmail({ email });
@@ -29,7 +35,7 @@ class PatientsHandler {
             const decoded = jwt.jwtDecode(token);
             const users = await usersRepository.get();
             const user = users.find(elem => elem.username == decoded.username);
-            const error = await patientsRepository.add({ userId: user.id, username, email })
+            const error = await patientsRepository.add({ userId: user.id, username, email, birthDate, phone, maritalStatus, cpf, gender, rg })
 
             if (error) return response.status(STATUS_CODE.UNPROCESSABLE_ENTITY).json({ message: "Aconteceu um erro interno, tente novamente em instantes." });
 
@@ -71,7 +77,10 @@ class PatientsHandler {
                     username: elem.username,
                     email: elem.email,
                     createdAt: elem.created_at,
-                    createdBy: elem.created_by
+                    createdBy: elem.created_by,
+                    cpf: elem.cpf,
+                    gender: elem.gender,
+                    phone: elem.phone
                 }
             })
             
