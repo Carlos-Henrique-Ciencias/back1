@@ -35,8 +35,14 @@ class PatientsHandler {
             const decoded = jwt.jwtDecode(token);
             const users = await usersRepository.get();
             const user = users.find(elem => elem.username == decoded.username);
-            const error = await patientsRepository.add({ userId: user.id, username, email, birthDate, phone, maritalStatus, cpf, gender, rg })
-
+            console.log(user);
+        
+            if (!user) {
+                return response.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Usuário não encontrado." });
+            }
+        
+            const error = await patientsRepository.add({ userId: user.id, username, email, birthDate, phone, maritalStatus, cpf, gender, rg });
+        
             if (error) return response.status(STATUS_CODE.UNPROCESSABLE_ENTITY).json({ message: "Aconteceu um erro interno, tente novamente em instantes." });
 
             response.status(STATUS_CODE.CREATED).json({});
@@ -45,6 +51,7 @@ class PatientsHandler {
             response.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Usuário não autenticado." });
         }
     }
+
     async get({ headers }, response) {
         const authHeader = headers.authorization;
 
@@ -90,6 +97,7 @@ class PatientsHandler {
             response.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Usuário não autenticado." });
         }
     }
+
     async remove({ headers, params }, response) {
         const authHeader = headers.authorization;
 
